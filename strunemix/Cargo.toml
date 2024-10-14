@@ -1,0 +1,16 @@
+[package]
+name = "strunemix"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+keywords = ["struct", "name", "data", "type", "enum"]
+description = "Strunemix allows to work with structs as if they were enums"
+authors = ["Léo Parent <ired4321@gmail.com>"]
+categories = ["rust-patterns", "development-tools::procedural-macro-helpers"]
+repository = "https://github.com/iRed4321/strunemix"
+homepage = "https://github.com/iRed4321/strunemix"
+readme = "../README.md"
+documentation = "https://docs.rs/strunemix"
+
+[dependencies]
+strunemix_macros = { path = "../strunemix_macros" }
