@@ -2,6 +2,10 @@
 name = "strunemix_macros"
 version = "0.2.0"
 edition = "2021"
+license = "MIT"
+keywords = ["struct", "name", "data", "macro", "enum"]
+description = "Macro used by Strunemix to derive traits for structs"
+homepage = "https://github.com/iRed4321/strunemix"
 
 [dependencies]
 quote = "1.0"
