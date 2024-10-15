@@ -11,7 +11,7 @@ where
     /// ```rust
     /// use strunemix::*;
     /// 
-    /// #[derive(Default, Strunemix)]
+    /// #[derive(Strunemix)]
     /// struct Person {
     ///   age: i32,
     ///   name: Option<String>
@@ -33,7 +33,7 @@ where
 /// ```rust
 /// use strunemix::*;
 /// 
-/// #[derive(Default, Strunemix)]
+/// #[derive(Strunemix)]
 /// #[strunemix_derive_data(Debug, PartialEq)]
 /// struct Person {
 ///    age: i32,
@@ -61,7 +61,7 @@ where
     /// ```rust
     /// # use strunemix::*;
     /// #
-    /// # #[derive(Default, Strunemix)]
+    /// # #[derive(Strunemix)]
     /// # #[strunemix_derive_data(Debug, PartialEq)]
     /// # struct Person {
     /// #    age: i32,
@@ -90,7 +90,7 @@ where
     /// ```rust
     /// # use strunemix::*;
     /// #
-    /// # #[derive(Default, Strunemix)]
+    /// # #[derive(Strunemix)]
     /// # #[strunemix_derive_data(Debug, PartialEq)]
     /// # struct Person {
     /// #    age: i32,

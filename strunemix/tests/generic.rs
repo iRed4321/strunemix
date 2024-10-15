@@ -61,3 +61,32 @@ fn name_on_data() {
     let name = PersonAttrData::<String>::Name(Some("John"));
     assert_eq!(name.name(), PersonAttrName::Name);
 }
+
+#[test]
+fn form() {
+
+    let person = Person {name: Some("John"), age: 42, note: "note".to_string()};
+
+    let mut form = person.to_form::<String>();
+
+    assert_eq!(form.get_data(PersonAttrName::Name).unwrap(), &PersonAttrData::Name(Some("John")));
+    assert_eq!(form.get_data(PersonAttrName::Age).unwrap(), &PersonAttrData::Age(42));
+
+    let age = form.get_data_mut(PersonAttrName::Age).unwrap();
+    if let PersonAttrData::Age(age) = age {
+        *age = 43;
+    }
+
+    form.set_data(PersonAttrName::Name, PersonAttrData::Name(Some("Jane")));
+
+    let age = form.get_data(PersonAttrName::Age).unwrap();
+    let name = form.get_data(PersonAttrName::Name).unwrap();
+
+    assert_eq!(age, &PersonAttrData::Age(43));
+    assert_eq!(name, &PersonAttrData::Name(Some("Jane")));
+
+    let person_new = Person::from_form(form).unwrap();
+
+    assert_eq!(person_new, Person {name: Some("Jane"), age: 43, note: "note".to_string()});
+
+}

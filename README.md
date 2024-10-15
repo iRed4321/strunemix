@@ -7,7 +7,7 @@ Strunemix allows to work with structs as if they were enums.
 ```rust
 use strunemix::*;
 
-#[derive(Debug, PartialEq, Default, Clone, Strunemix)]
+#[derive(Debug, PartialEq, Clone, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq, Clone)]
 struct Person {
    pseudo: String,

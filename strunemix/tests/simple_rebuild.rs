@@ -47,3 +47,24 @@ fn rebuild_skipped_default() {
     assert_eq!(person, expected1);
     assert_ne!(person, expected2);
 }
+
+#[test]
+fn form() {
+
+    let person = Person2 {name: "John".to_string(), age: 42};
+
+    let mut form = person.to_form::<String>();
+
+    assert_eq!(form.get_data(Person2AttrName::Name).unwrap(), &Person2AttrData::Name("John".to_string()));
+
+    form.set_data(Person2AttrName::Name, Person2AttrData::Name("Jane".to_string()));
+
+    let name = form.get_data(Person2AttrName::Name).unwrap();
+
+    assert_eq!(name, &Person2AttrData::Name("Jane".to_string()));
+
+    let person_new = Person2::from_form(form).unwrap();
+
+    assert_eq!(person_new, Person2 {name: "Jane".to_string(), age: i32::default()});
+
+}

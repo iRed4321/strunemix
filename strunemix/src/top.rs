@@ -1,16 +1,19 @@
-use crate::{StrunemixData, StrunemixName};
+use std::collections::BTreeMap;
+
+use crate::{StrunemixData, StrunemixForm, StrunemixName};
 
 /// Trait implemented automatically on structs that have been strunemixed.
 pub trait StrunemixTrait<T, U, const N: usize>
 where 
-    T: StrunemixName + From<U>
+    T: StrunemixName + From<U>,
+    U: StrunemixData<T>
 {
 
     /// The number of fields in the struct.
     /// ```rust
     /// use strunemix::*;
     /// 
-    /// #[derive(Default, Strunemix)]
+    /// #[derive(Strunemix)]
     /// struct Person {
     ///   age: i32,
     ///   name: Option<String>,
@@ -25,7 +28,7 @@ where
     /// ```rust
     /// use strunemix::*;
     /// 
-    /// #[derive(Default, Strunemix)]
+    /// #[derive(Strunemix)]
     /// struct Person {
     ///    age: i32,
     ///    name: Option<String>,
@@ -43,7 +46,7 @@ where
     /// ```rust
     /// use strunemix::*;
     /// 
-    /// #[derive(Default, Strunemix)]
+    /// #[derive(Strunemix)]
     /// #[strunemix_derive_data(Debug, PartialEq)]
     /// struct Person {
     ///    age: i32,
@@ -68,7 +71,7 @@ where
     /// ```rust
     /// use strunemix::*;
     /// 
-    /// #[derive(Debug, Default, PartialEq, Strunemix)]
+    /// #[derive(Debug, PartialEq, Strunemix)]
     /// struct Person {
     ///   pseudo: String,
     ///   phone: Option<String>,
@@ -90,4 +93,52 @@ where
     where Self: TryFrom<[U; N]> {
         TryFrom::try_from(data).map_err(|_| ())
     }
+
+    /// Consume the struct into a map-like structure convienient for form handling.
+    /// You have to provide an associated type for the form data. This can be useful to store the form-specific metadata.
+    /// The created form will initialize this associated type with a default value, so the [`Default`] trait must be implemented for it.
+    fn to_form<A>(self) -> StrunemixForm<A, T, U>
+    where 
+        T: Ord,
+        A: Default,
+        Self: Sized,
+    {
+        let names = Self::as_attr_name_array();
+        let datas = self.to_attr_data_array();
+
+        let res: BTreeMap<T,(Option<U>,A)> = names.into_iter().zip(datas.into_iter())
+        .map(|(name, data)| (name, (Some(data), A::default())))
+        .collect();
+
+        StrunemixForm::from(res)
+    }
+
+    /// Consume a form and convert it into a struct.
+    fn from_form<A>(form: StrunemixForm<A, T, U>) -> Result<Self, ()>
+    where 
+        T: Ord,
+        Self: Sized + TryFrom<[U; N]>,
+        A: Default
+    {
+        let datas = form.to_data_array()?;
+        let datas = datas.try_into().map_err(|_| ())?;
+        
+        Self::from_attr_data_array(datas)
+    }
+
+    fn empty_form<A>() -> StrunemixForm<A, T, U>
+    where 
+        T: Ord,
+        A: Default,
+        Self: Sized,
+    {
+        let names = Self::as_attr_name_array();
+
+        let res: BTreeMap<T,(Option<U>,A)> = names.into_iter()
+        .map(|name| (name, (None, A::default())))
+        .collect();
+
+        StrunemixForm::from(res)
+    }
+
 }

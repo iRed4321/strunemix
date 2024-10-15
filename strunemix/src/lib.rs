@@ -5,7 +5,7 @@
 //! ```rust
 //! use strunemix::*;
 //! 
-//! #[derive(Debug, PartialEq, Default, Clone, Strunemix)]
+//! #[derive(Debug, PartialEq, Clone, Strunemix)]
 //! #[strunemix_derive_data(Debug, PartialEq, Clone)]
 //! struct Person {
 //!    pseudo: String,
@@ -13,7 +13,11 @@
 //!    age: i32,
 //! }
 //! 
-//! let person = Person {pseudo: "MyCoolPseudo".to_string(), phone: Some("123456789".to_string()), age: 42};
+//! let person = Person {
+//!     pseudo: "MyCoolPseudo".to_string(),
+//!     phone: Some("123456789".to_string()),
+//!     age: 42
+//! };
 //! 
 //! let pseudo_name = PersonAttrName::Pseudo;
 //! let phone_name = PersonAttrName::Phone;
@@ -28,7 +32,8 @@
 //! let phone_data = PersonAttrData::Phone(Some("123456789".to_string()));
 //! let age_data = PersonAttrData::Age(42);
 //! 
-//! assert_eq!(person.clone().to_attr_data_array(), [pseudo_data.clone(), phone_data.clone(), age_data.clone()]);
+//! let person_data = person.clone().to_attr_data_array();
+//! assert_eq!(person_data, [pseudo_data.clone(), phone_data.clone(), age_data.clone()]);
 //! 
 //! let personcopy = Person::from_attr_data_array([pseudo_data, phone_data, age_data]).unwrap();
 //! 
@@ -38,7 +43,7 @@
 //! 
 //! ```rust
 //! # use strunemix::*;
-//! # #[derive(Debug, PartialEq, Default, Strunemix)]
+//! # #[derive(Debug, PartialEq, Strunemix)]
 //! # #[strunemix_derive_data(Debug, PartialEq)]
 //! # struct Person {
 //! #   pseudo: String,
@@ -65,6 +70,7 @@
 //! 
 //! assert_eq!(&pseudo_expected, &pseudo_from_name);
 //! assert_eq!(&pseudo_expected, &pseudo_from_str);
+//! ```
 
 
 /// Implements the [`StrunemixTrait`] on a struct automatically and generate the necessary enums and traits implementations.
@@ -97,7 +103,7 @@
 /// 
 /// use strunemix::*;
 /// 
-/// #[derive(Default, Strunemix)]
+/// #[derive(Debug, PartialEq, Default, Strunemix)]
 /// #[strunemix_default]
 /// struct Person {
 ///   pseudo: String,
@@ -122,7 +128,7 @@
 /// ```rust
 /// use strunemix::*;
 /// 
-/// #[derive(Default, Strunemix)]
+/// #[derive(Strunemix)]
 /// #[strunemix_derive_name(Debug, PartialEq, Eq, Clone, Copy, Hash)]
 /// struct Person {
 ///   pseudo: String,
@@ -139,7 +145,7 @@
 /// ```rust
 /// use strunemix::*;
 /// 
-/// #[derive(Default, Strunemix)]
+/// #[derive(Strunemix)]
 /// #[strunemix_derive_data(Debug, PartialEq, Eq, Clone)]
 /// struct Person {
 ///   pseudo: String,
@@ -165,3 +171,6 @@ pub use name::*;
 
 mod top;
 pub use top::*;
+
+mod form;
+pub use form::*;
