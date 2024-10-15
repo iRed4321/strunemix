@@ -15,7 +15,11 @@ struct Person {
    age: i32,
 }
 
-let person = Person {pseudo: "MyCoolPseudo".to_string(), phone: Some("123456789".to_string()), age: 42};
+let person = Person {
+    pseudo: "MyCoolPseudo".to_string(),
+    phone: Some("123456789".to_string()),
+    age: 42
+};
 
 let pseudo_name = PersonAttrName::Pseudo;
 let phone_name = PersonAttrName::Phone;
@@ -30,7 +34,8 @@ let pseudo_data = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
 let phone_data = PersonAttrData::Phone(Some("123456789".to_string()));
 let age_data = PersonAttrData::Age(42);
 
-assert_eq!(person.clone().to_attr_data_array(), [pseudo_data.clone(), phone_data.clone(), age_data.clone()]);
+let person_data = person.clone().to_attr_data_array();
+assert_eq!(person_data, [pseudo_data.clone(), phone_data.clone(), age_data.clone()]);
 
 let personcopy = Person::from_attr_data_array([pseudo_data, phone_data, age_data]).unwrap();
 
@@ -59,5 +64,6 @@ let pseudo_from_str = PersonAttrData::from_str_and_data(psudo_name_str, data).un
 
 assert_eq!(&pseudo_expected, &pseudo_from_name);
 assert_eq!(&pseudo_expected, &pseudo_from_str);
+```
 
 License: MIT
