@@ -5,14 +5,14 @@ use strunemix::*;
 #[strunemix_derive_data(Debug, PartialEq)]
 pub struct Person {
     name: String,
+    #[strunemix(skip)]
     age: i32,
 }
 
 impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
     fn from_name_and_data(s: PersonAttrName, arg: &str) -> Result<Self, ()> {
         match s {
-            PersonAttrName::Name => Ok(PersonAttrData::Name(arg.to_string())),
-            PersonAttrName::Age => arg.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
+            PersonAttrName::Name => Ok(PersonAttrData::Name(arg.to_string()))
         }
     }
 }

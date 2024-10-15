@@ -38,6 +38,7 @@ where
     }
 
     /// Convert a struct into an array of its attributes data, using enums variants of its field names.
+    /// Note that the values are not cloned, they are moved, this function consumes the struct.
     /// 
     /// ```rust
     /// use strunemix::*;
@@ -85,8 +86,8 @@ where
     /// let expected = Person {pseudo: "John".to_string(), phone: Some("123456789".to_string()), age: 42};
     /// 
     /// assert_eq!(person, expected);
-    fn from_attr_data_array(data: [U; N]) -> Result<Self, <Self as TryFrom<[U; N]>>::Error>
+    fn from_attr_data_array(data: [U; N]) -> Result<Self, ()>
     where Self: TryFrom<[U; N]> {
-        TryFrom::try_from(data)
+        TryFrom::try_from(data).map_err(|_| ())
     }
 }

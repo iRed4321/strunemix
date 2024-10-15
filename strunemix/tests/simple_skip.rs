@@ -4,21 +4,21 @@ use strunemix::*;
 #[strunemix_derive_data(Debug, PartialEq)]
 pub struct Person {
     name: String,
+    #[strunemix(skip)]
     age: i32,
 }
 
 #[test]
 fn fields_counts() {
-    assert_eq!(Person::FIELDS_COUNT, 2);
+    assert_eq!(Person::FIELDS_COUNT, 1);
 }
 
 #[test]
 fn name_array() {
 
     let name = PersonAttrName::Name;
-    let age = PersonAttrName::Age;
 
-    assert_eq!(Person::as_attr_name_array(), [name, age]);
+    assert_eq!(Person::as_attr_name_array(), [name]);
 }
 
 #[test]
@@ -27,15 +27,14 @@ fn data_array() {
     let person = Person {name: "John".to_string(), age: 42};
 
     let name = PersonAttrData::Name("John".to_string());
-    let age = PersonAttrData::Age(42);
 
-    assert_eq!(person.to_attr_data_array(), [name, age]);
+    assert_eq!(person.to_attr_data_array(), [name]);
 }
 
 #[test]
 fn from_enum_name() {
-    let age = PersonAttrName::Age;
-    assert!(age.name() == "age");
+    let name = PersonAttrName::Name;
+    assert!(name.name() == "name");
 }
 
 #[test]

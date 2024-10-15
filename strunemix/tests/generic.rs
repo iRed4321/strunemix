@@ -3,22 +3,10 @@ use strunemix::*;
 
 #[derive(Debug, PartialEq, Eq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq)]
-pub struct Person<'a, A: Default>{
+pub struct Person<'a, A>{
     name: Option<&'a str>,
     age: i32,
     note: A
-}
-
-impl<A> Default for Person<'_, A>
-    where A: Default
-{
-    fn default() -> Self {
-        Person {
-            name: None,
-            age: 0,
-            note: A::default()
-        }
-    }
 }
 
 #[test]
@@ -39,11 +27,11 @@ fn name_array() {
 #[test]
 fn data_array() {
 
-    let person = Person::default();
+    let person = Person {name: Some("John"), age: 42, note: "note".to_string()};
 
-    let name = PersonAttrData::<String>::Name(None);
-    let age = PersonAttrData::<String>::Age(0);
-    let note = PersonAttrData::<String>::Note(String::default());
+    let name = PersonAttrData::<String>::Name(Some("John"));
+    let age = PersonAttrData::<String>::Age(42);
+    let note = PersonAttrData::<String>::Note("note".to_string());
 
     assert_eq!(person.to_attr_data_array(), [name, age, note]);
 }

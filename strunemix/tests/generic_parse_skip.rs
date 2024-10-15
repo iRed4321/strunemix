@@ -5,6 +5,7 @@ use strunemix::*;
 #[strunemix_derive_data(Debug, PartialEq)]
 pub struct Person<'a, A>{
     name: Option<&'a str>,
+    #[strunemix(skip)]
     age: i32,
     note: A
 }
@@ -16,7 +17,6 @@ impl<'a, 'b> StrunemixParsableData<'a, PersonAttrName> for PersonAttrData::<'b, 
     {
         match s {
             PersonAttrName::Name => Ok(PersonAttrData::Name(Some(arg))),
-            PersonAttrName::Age => arg.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age)),
             PersonAttrName::Note => Ok(PersonAttrData::Note(arg.to_string()))
         }
     }

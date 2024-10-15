@@ -26,7 +26,31 @@ where
     }
 }
 
-/// Trait that must be implemented to allow the conversion from a string slice to a field.
+/// Trait that must be implemented to allow the conversion from a string slice to the inner type of an enum data.
+/// 
+/// # Example
+/// 
+/// ```rust
+/// use strunemix::*;
+/// 
+/// #[derive(Default, Strunemix)]
+/// #[strunemix_derive_data(Debug, PartialEq)]
+/// struct Person {
+///    age: i32,
+///    name: Option<String>,
+/// }
+/// 
+/// impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
+///   fn from_name_and_data(name: PersonAttrName, data: &str) -> Result<Self, ()> {
+///     match name {
+///       PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data.to_string()))),
+///       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
+///     }
+///   }
+/// }
+/// ```
+/// This will make available [`StrunemixParsableData::from_str_and_data`] and [`StrunemixParsableData::from_name_and_data`].
+
 pub trait StrunemixParsableData<'a, T>
 where 
     Self: Sized,
@@ -35,26 +59,24 @@ where
     /// Make an enum data from a enum name and the associated data as a string slice.
     /// 
     /// ```rust
-    /// use strunemix::*;
-    /// 
-    /// #[derive(Default, Strunemix)]
-    /// #[strunemix_derive_data(Debug, PartialEq)]
-    /// struct Person {
-    ///    age: i32,
-    ///    name: Option<String>,
-    /// }
-    /// 
-    /// // Implement the trait for the struct
-    /// // This allow any kind of conversion from a string to the inner type of the field
-    /// impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
-    ///   fn from_name_and_data(name: PersonAttrName, data: &str) -> Result<Self, ()> {
-    ///     match name {
-    ///       PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data.to_string()))),
-    ///       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
-    ///     }
-    ///   }
-    /// }
-    /// 
+    /// # use strunemix::*;
+    /// #
+    /// # #[derive(Default, Strunemix)]
+    /// # #[strunemix_derive_data(Debug, PartialEq)]
+    /// # struct Person {
+    /// #    age: i32,
+    /// #    name: Option<String>,
+    /// # }
+    /// #
+    /// # impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
+    /// #  fn from_name_and_data(name: PersonAttrName, data: &str) -> Result<Self, ()> {
+    /// #     match name {
+    /// #       PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data.to_string()))),
+    /// #       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
+    /// #     }
+    /// #   }
+    /// # }
+    /// #
     /// let age_name = PersonAttrName::Age;
     /// let age_data = "42";
     /// 
@@ -66,30 +88,25 @@ where
     /// Make an enum data from a name as string and the associated data as a string slice.
     /// 
     /// ```rust
-    /// use strunemix::*;
-    /// 
-    /// #[derive(Default, Strunemix)]
-    /// #[strunemix_derive_data(Debug, PartialEq)]
-    /// struct Person {
-    ///    age: i32,
-    ///    name: Option<String>,
-    /// }
-    /// 
-    /// // Implement the trait for the struct
-    /// // This allow any kind of conversion from a string to the inner type of the field
-    /// impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
-    ///   fn from_name_and_data(name: PersonAttrName, data: &str) -> Result<Self, ()> {
-    ///     match name {
-    ///       PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data.to_string()))),
-    ///       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
-    ///     }
-    ///   }
-    /// }
-    /// 
-    /// let age_name = "age";
-    /// let age_data = "42";
-    /// 
-    /// let age = PersonAttrData::from_str_and_data(age_name, age_data).unwrap();
+    /// # use strunemix::*;
+    /// #
+    /// # #[derive(Default, Strunemix)]
+    /// # #[strunemix_derive_data(Debug, PartialEq)]
+    /// # struct Person {
+    /// #    age: i32,
+    /// #    name: Option<String>,
+    /// # }
+    /// #
+    /// # impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
+    /// #  fn from_name_and_data(name: PersonAttrName, data: &str) -> Result<Self, ()> {
+    /// #     match name {
+    /// #       PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data.to_string()))),
+    /// #       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
+    /// #     }
+    /// #   }
+    /// # }
+    /// #
+    /// let age = PersonAttrData::from_str_and_data("age", "42").unwrap();
     /// 
     /// assert_eq!(PersonAttrData::Age(42), age);
     fn from_str_and_data(s: &str, arg: &'a str) -> Result<Self, ()> {

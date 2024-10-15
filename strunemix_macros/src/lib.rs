@@ -8,7 +8,7 @@ use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{quote, ToTokens};
 use heck::ToUpperCamelCase;
 
-#[proc_macro_derive(Strunemix, attributes(strunemix, strunemix_derive_data, strunemix_derive_name, strunemix_derive))]
+#[proc_macro_derive(Strunemix, attributes(strunemix, strunemix_derive_data, strunemix_derive_name, strunemix_derive, strunemix_default))]
 pub fn field_type(input: TokenStream) -> TokenStream {
     let ast: DeriveInput = syn::parse(input).unwrap();
     let (vis, ty, generics) = (&ast.vis, &ast.ident, &ast.generics);
@@ -21,6 +21,15 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         syn::Data::Struct(ref s) => &s.fields,
         _ => panic!("Strunemix can only derive structures")
     });
+
+    let have_default = ast.attrs.iter()
+        .find(|attr| attr.path().is_ident("strunemix_default"))
+        .is_some();
+
+    let haveskippedfields = match ast.data {
+        syn::Data::Struct(ref s) => &s.fields,
+        _ => panic!("Strunemix can only derive structures")
+    }.len() != fields.len();
 
     if fields.is_empty() {
         panic!("Strunemix can only derive non-empty structures");
@@ -126,24 +135,9 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         impl_generics_tokens = TokenStream2::from_iter(tokens);
     }
 
-
     let converter = if generics.params.is_empty() {
 
         quote! {
-
-            impl TryFrom<[#enum_data; #fields_count]> for #ty
-            {
-                type Error = ();
-                fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
-
-                    let [#(#fields_idents),*] = source;
-
-                    Ok(#ty {
-                        #(#parts,)*
-                        ..Default::default()
-                    })
-                }
-            }
 
             //Array
             impl From<#ty> for [#enum_data; #fields_count] {
@@ -166,11 +160,11 @@ pub fn field_type(input: TokenStream) -> TokenStream {
 
         quote! {
 
-            impl #impl_generics Into<[#enum_data #ty_generics; #fields_count]> for #ty #ty_generics
+            impl #impl_generics From<#ty #ty_generics> for [#enum_data #ty_generics; #fields_count]
                 #where_clause
             {
-                fn into(self) -> [#enum_data #ty_generics; #fields_count] {
-                    let #destructuring = self;
+                fn from(source: #ty #ty_generics) -> Self {
+                    let #destructuring = source;
                     [#(#from_field_type_constructs),*]
                 }
             }
@@ -184,8 +178,43 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                     }
                 }
             }
+        }
+    };
 
+    let tryfromarray = match (haveskippedfields, generics.params.is_empty(), !have_default) {
+        (true, true, true) => quote! {},
+        (true, true, false) => quote! {
+            impl TryFrom<[#enum_data; #fields_count]> for #ty
+            {
+                type Error = ();
+                fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
 
+                    let [#(#fields_idents),*] = source;
+
+                    Ok(#ty {
+                        #(#parts,)*
+                        ..Default::default()
+                    })
+                }
+            }
+        },
+        (false, true, _) => quote! {
+
+            impl TryFrom<[#enum_data; #fields_count]> for #ty
+            {
+                type Error = ();
+                fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
+
+                    let [#(#fields_idents),*] = source;
+
+                    Ok(#ty {
+                        #(#parts,)*
+                    })
+                }
+            }
+        },
+        (true, false, true) => quote! {},
+        (true, false, false) => quote! {
             impl #impl_generics TryFrom<[#enum_data #ty_generics; #fields_count]> for #ty #ty_generics
                 #where_clause
             {
@@ -200,7 +229,23 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                     })
                 }
             }
+        },
+        (false, false, _) => quote! {
+            impl #impl_generics TryFrom<[#enum_data #ty_generics; #fields_count]> for #ty #ty_generics
+                #where_clause
+            {
+                type Error = ();
+                fn try_from(source: [#enum_data #ty_generics; #fields_count]) -> Result<Self, Self::Error> {
+                    
+                    let [#(#fields_idents),*] = source;
+
+                    Ok(#ty {
+                        #(#parts,)*
+                    })
+                }
+            }
         }
+
     };
 
     let tokens = quote! {
@@ -245,6 +290,8 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         {
             #(#field_type_variants),*
         }
+
+        #tryfromarray
 
         #converter
 
