@@ -1,8 +1,8 @@
 use strunemix::*;
 
-
 #[derive(Debug, Default, PartialEq, Eq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq)]
+#[strunemix_derive_name(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
 #[strunemix_default]
 pub struct Person<'a, A: Default>{
     name: Option<&'a str>,
@@ -48,18 +48,18 @@ fn form() {
 
     let mut form = person.to_form::<String>();
 
-    assert_eq!(form.get_data(PersonAttrName::Name).unwrap(), &PersonAttrData::Name(Some("John")));
-    assert_eq!(form.get_data(PersonAttrName::Note).unwrap(), &PersonAttrData::Note("note".to_string()));
+    assert_eq!(form.get_data(&PersonAttrName::Name).unwrap(), &PersonAttrData::Name(Some("John")));
+    assert_eq!(form.get_data(&PersonAttrName::Note).unwrap(), &PersonAttrData::Note("note".to_string()));
 
-    let note = form.get_data_mut(PersonAttrName::Note).unwrap();
+    let note = form.get_data_mut(&PersonAttrName::Note).unwrap();
     if let PersonAttrData::Note(note) = note {
         *note = "new note".to_string();
     }
 
-    form.set_data(PersonAttrName::Name, PersonAttrData::Name(Some("Jane")));
+    form.set_data(&PersonAttrName::Name, PersonAttrData::Name(Some("Jane")));
 
-    let note = form.get_data(PersonAttrName::Note).unwrap();
-    let name = form.get_data(PersonAttrName::Name).unwrap();
+    let note = form.get_data(&PersonAttrName::Note).unwrap();
+    let name = form.get_data(&PersonAttrName::Name).unwrap();
 
     assert_eq!(note, &PersonAttrData::Note("new note".to_string()));
     assert_eq!(name, &PersonAttrData::Name(Some("Jane")));

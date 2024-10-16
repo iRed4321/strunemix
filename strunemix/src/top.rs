@@ -1,6 +1,4 @@
-use std::collections::BTreeMap;
-
-use crate::{StrunemixData, StrunemixForm, StrunemixName};
+use crate::*;
 
 /// Trait implemented automatically on structs that have been strunemixed.
 pub trait StrunemixTrait<T, U, const N: usize>
@@ -97,16 +95,16 @@ where
     /// Consume the struct into a map-like structure convienient for form handling.
     /// You have to provide an associated type for the form data. This can be useful to store the form-specific metadata.
     /// The created form will initialize this associated type with a default value, so the [`Default`] trait must be implemented for it.
-    fn to_form<A>(self) -> StrunemixForm<A, T, U>
+    fn to_form<A>(self) -> StrunemixForm<T, U, A, N>
     where 
-        T: Ord,
         A: Default,
+        T: Eq,
         Self: Sized,
     {
         let names = Self::as_attr_name_array();
         let datas = self.to_attr_data_array();
 
-        let res: BTreeMap<T,(Option<U>,A)> = names.into_iter().zip(datas.into_iter())
+        let res: StrunemixMap<T, U, A, N> = names.into_iter().zip(datas.into_iter())
         .map(|(name, data)| (name, (Some(data), A::default())))
         .collect();
 
@@ -114,11 +112,10 @@ where
     }
 
     /// Consume a form and convert it into a struct.
-    fn from_form<A>(form: StrunemixForm<A, T, U>) -> Result<Self, ()>
-    where 
-        T: Ord,
-        Self: Sized + TryFrom<[U; N]>,
-        A: Default
+    fn from_form<A>(form: StrunemixForm<T, U, A, N>) -> Result<Self, ()>
+    where
+        Self: TryFrom<[U; N]>,
+        T: PartialEq
     {
         let datas = form.to_data_array()?;
         let datas = datas.try_into().map_err(|_| ())?;
@@ -126,15 +123,15 @@ where
         Self::from_attr_data_array(datas)
     }
 
-    fn empty_form<A>() -> StrunemixForm<A, T, U>
+    /// Create an empty form with default values for the associated type.
+    fn empty_form<A>() -> StrunemixForm<T, U, A, N>
     where 
-        T: Ord,
         A: Default,
-        Self: Sized,
+        T: PartialEq
     {
         let names = Self::as_attr_name_array();
 
-        let res: BTreeMap<T,(Option<U>,A)> = names.into_iter()
+        let res: StrunemixMap<T, U, A, N> = names.into_iter()
         .map(|name| (name, (None, A::default())))
         .collect();
 

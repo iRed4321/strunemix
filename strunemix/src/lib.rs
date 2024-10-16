@@ -161,16 +161,17 @@
 /// 
 /// `#[strunemix_derive]` can be used to derive some macros on both the generated enums names and data.
 /// If the attribute is not used, the macros derived are the same as the ones derived on the enums names and data.
-pub use strunemix_macros::Strunemix;
 
 mod data;
-pub use data::*;
-
-mod name;
-pub use name::*;
-
 mod top;
-pub use top::*;
-
 mod form;
-pub use form::*;
+mod name;
+
+// pub mod prelude {
+    // }
+    
+pub use strunemix_macros::Strunemix;
+pub use crate::name::*;
+pub use crate::data::*;
+pub use crate::form::*;
+pub use crate::top::*;

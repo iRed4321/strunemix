@@ -15,8 +15,9 @@ pub fn field_type(input: TokenStream) -> TokenStream {
     let enum_data = Ident::new(&(ty.to_string() + "AttrData"), Span::call_site());
     let enum_name = Ident::new(&(ty.to_string() + "AttrName"), Span::call_site());
     let derive_type = get_enum_derive(&ast.attrs, &["strunemix_derive_data", "strunemix_derive"], quote! {});
-    let derive_name = get_enum_derive(&ast.attrs, &["strunemix_derive_name", "strunemix_derive"], quote! {
-        #[derive(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)] });
+    let derive_name = get_enum_derive(&ast.attrs, &["strunemix_derive_name", "strunemix_derive"], 
+    quote! {#[derive(Debug, PartialEq, Eq, Clone, Copy)] }
+    );
     let fields = filter_fields(match ast.data {
         syn::Data::Struct(ref s) => &s.fields,
         _ => panic!("Strunemix can only derive structures")

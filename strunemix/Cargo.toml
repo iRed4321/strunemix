@@ -13,4 +13,6 @@ readme = "../README.md"
 documentation = "https://docs.rs/strunemix"
 
 [dependencies]
-strunemix_macros = { path = "../strunemix_macros", version = "0.2.0" }
+collect_array = "0.1.3"
+micromap = "0.0.15"
+strunemix_macros = { path = "../strunemix_macros"}

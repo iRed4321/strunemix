@@ -1,6 +1,5 @@
 use strunemix::*;
 
-
 #[derive(Debug, PartialEq, Eq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq)]
 pub struct Person<'a, A>{

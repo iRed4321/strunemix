@@ -1,8 +1,8 @@
 use strunemix::*;
 
-
 #[derive(Debug, PartialEq, Eq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq)]
+#[strunemix_derive_name(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct Person1 {
     name: String,
     age: i32,
@@ -24,6 +24,7 @@ fn rebuild_normal() {
 
 #[derive(Debug, Default, PartialEq, Eq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq)]
+#[strunemix_derive_name(Debug, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
 #[strunemix_default]
 pub struct Person2 {
     name: String,
@@ -55,11 +56,11 @@ fn form() {
 
     let mut form = person.to_form::<String>();
 
-    assert_eq!(form.get_data(Person2AttrName::Name).unwrap(), &Person2AttrData::Name("John".to_string()));
+    assert_eq!(form.get_data(&Person2AttrName::Name).unwrap(), &Person2AttrData::Name("John".to_string()));
 
-    form.set_data(Person2AttrName::Name, Person2AttrData::Name("Jane".to_string()));
+    form.set_data(&Person2AttrName::Name, Person2AttrData::Name("Jane".to_string()));
 
-    let name = form.get_data(Person2AttrName::Name).unwrap();
+    let name = form.get_data(&Person2AttrName::Name).unwrap();
 
     assert_eq!(name, &Person2AttrData::Name("Jane".to_string()));
 
