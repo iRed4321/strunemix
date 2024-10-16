@@ -15,4 +15,4 @@ documentation = "https://docs.rs/strunemix"
 [dependencies]
 collect_array = "0.1.3"
 micromap = "0.0.15"
-strunemix_macros = { path = "../strunemix_macros"}
+strunemix_macros = { path = "../strunemix_macros", version = "0.3.0" }
