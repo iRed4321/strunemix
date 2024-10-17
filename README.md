@@ -45,7 +45,7 @@ If you want to build the attribute data from string values, you must implement t
 
 ```rust
 impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
-  fn from_name_and_data(name: PersonAttrName, data: &str) -> Result<Self, ()> {
+  fn with_attr_name(name: PersonAttrName, data: &str) -> Result<Self, ()> {
     match name {
       PersonAttrName::Pseudo => Ok(PersonAttrData::Pseudo(data.to_string())),
       PersonAttrName::Phone => Ok(PersonAttrData::Phone(Some(data.to_string()))),
@@ -59,8 +59,8 @@ let psudo_name_str = "pseudo";
 let data = "MyCoolPseudo";
 
 let pseudo_expected = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
-let pseudo_from_name = PersonAttrData::from_name_and_data(pseudo_name, data).unwrap();
-let pseudo_from_str = PersonAttrData::from_str_and_data(psudo_name_str, data).unwrap();
+let pseudo_from_name = PersonAttrData::with_attr_name(pseudo_name, data).unwrap();
+let pseudo_from_str = PersonAttrData::with_attr_str(psudo_name_str, data).unwrap();
 
 assert_eq!(&pseudo_expected, &pseudo_from_name);
 assert_eq!(&pseudo_expected, &pseudo_from_str);

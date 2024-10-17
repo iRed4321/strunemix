@@ -66,27 +66,34 @@ fn form() {
 
     let mut form = person.to_form::<String>();
 
-    assert_eq!(form.get_data(&PersonAttrName::Name).unwrap(), &PersonAttrData::Name("John".to_string()));
-    assert_eq!(form.get_data(&PersonAttrName::Age).unwrap(), &PersonAttrData::Age(42));
+    assert_eq!(form.get_data(PersonAttrName::Name).unwrap(), &PersonAttrData::Name("John".to_string()));
+    assert_eq!(form.get_data(PersonAttrName::Age).unwrap(), &PersonAttrData::Age(42));
 
-    let age = form.get_data_mut(&PersonAttrName::Age).unwrap();
+    let age = form.get_data_mut(PersonAttrName::Age).unwrap();
     if let PersonAttrData::Age(age) = age {
         *age = 43;
     }
 
-    form.set_data(&PersonAttrName::Name, PersonAttrData::Name("Jane".to_string()));
+    form.set_data(PersonAttrName::Name, PersonAttrData::Name("Jane".to_string()));
 
-    form.set_info(&PersonAttrName::Name, "Must be more than 3 characters".to_string());
+    form.set_info(PersonAttrName::Name, "Must be more than 3 characters".to_string());
 
-    form.get_info_mut(&PersonAttrName::Name).push_str(" and less than 10");
+    form.get_info_mut(PersonAttrName::Name).push_str(" and less than 10");
 
-    let age = form.get_data(&PersonAttrName::Age).unwrap();
-    let name = form.get_data(&PersonAttrName::Name).unwrap();
-    let info_name = form.get_info(&PersonAttrName::Name);
+    let age = form.get_data(PersonAttrName::Age).unwrap();
+    let name = form.get_data(PersonAttrName::Name).unwrap();
+    let info_name = form.get_info(PersonAttrName::Name);
 
+    
     assert_eq!(age, &PersonAttrData::Age(43));
     assert_eq!(name, &PersonAttrData::Name("Jane".to_string()));
     assert_eq!(info_name, "Must be more than 3 characters and less than 10");
+    
+    let age = form.get_data("age").unwrap();
+    let name = form.get_data("name").unwrap();
+
+    assert_eq!(age, &PersonAttrData::Age(43));
+    assert_eq!(name, &PersonAttrData::Name("Jane".to_string()));
 
     let person_new = Person::from_form(form).unwrap();
 
@@ -99,8 +106,8 @@ fn form_empty() {
 
     let person = Person::empty_form::<()>();
 
-    assert_eq!(person.get_data(&PersonAttrName::Name), None);
-    assert_eq!(person.get_data(&PersonAttrName::Age), None);
+    assert_eq!(person.get_data(PersonAttrName::Name), None);
+    assert_eq!(person.get_data(PersonAttrName::Age), None);
 
     let finished = person.is_complete();
     assert_eq!(finished, false);

@@ -69,18 +69,18 @@ fn form() {
 
     let mut form = person.to_form::<String>();
 
-    assert_eq!(form.get_data(&PersonAttrName::Name).unwrap(), &PersonAttrData::Name(Some("John")));
-    assert_eq!(form.get_data(&PersonAttrName::Age).unwrap(), &PersonAttrData::Age(42));
+    assert_eq!(form.get_data(PersonAttrName::Name).unwrap(), &PersonAttrData::Name(Some("John")));
+    assert_eq!(form.get_data(PersonAttrName::Age).unwrap(), &PersonAttrData::Age(42));
 
-    let age = form.get_data_mut(&PersonAttrName::Age).unwrap();
+    let age = form.get_data_mut(PersonAttrName::Age).unwrap();
     if let PersonAttrData::Age(age) = age {
         *age = 43;
     }
 
-    form.set_data(&PersonAttrName::Name, PersonAttrData::Name(Some("Jane")));
+    form.set_data(PersonAttrName::Name, PersonAttrData::Name(Some("Jane")));
 
-    let age = form.get_data(&PersonAttrName::Age).unwrap();
-    let name = form.get_data(&PersonAttrName::Name).unwrap();
+    let age = form.get_data(PersonAttrName::Age).unwrap();
+    let name = form.get_data(PersonAttrName::Name).unwrap();
 
     assert_eq!(age, &PersonAttrData::Age(43));
     assert_eq!(name, &PersonAttrData::Name(Some("Jane")));
@@ -96,8 +96,8 @@ fn form_empty() {
 
     let person = Person::<String>::empty_form::<()>();
 
-    assert_eq!(person.get_data(&PersonAttrName::Name), None);
-    assert_eq!(person.get_data(&PersonAttrName::Age), None);
+    assert_eq!(person.get_data(PersonAttrName::Name), None);
+    assert_eq!(person.get_data(PersonAttrName::Age), None);
 
     let finished = person.is_complete();
     assert_eq!(finished, false);

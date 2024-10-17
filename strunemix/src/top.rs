@@ -95,7 +95,7 @@ where
     /// Consume the struct into a map-like structure convienient for form handling.
     /// You have to provide an associated type for the form data. This can be useful to store the form-specific metadata.
     /// The created form will initialize this associated type with a default value, so the [`Default`] trait must be implemented for it.
-    fn to_form<A>(self) -> StrunemixForm<T, U, A, N>
+    fn to_form<A>(self) -> StrunemixForm<T, U, N, A>
     where 
         A: Default,
         T: Eq,
@@ -104,7 +104,7 @@ where
         let names = Self::as_attr_name_array();
         let datas = self.to_attr_data_array();
 
-        let res: StrunemixMap<T, U, A, N> = names.into_iter().zip(datas.into_iter())
+        let res: StrunemixMap<T, U, N, A> = names.into_iter().zip(datas.into_iter())
         .map(|(name, data)| (name, (Some(data), A::default())))
         .collect();
 
@@ -112,7 +112,7 @@ where
     }
 
     /// Consume a form and convert it into a struct.
-    fn from_form<A>(form: StrunemixForm<T, U, A, N>) -> Result<Self, ()>
+    fn from_form<A>(form: StrunemixForm<T, U, N, A>) -> Result<Self, ()>
     where
         Self: TryFrom<[U; N]>,
         T: PartialEq
@@ -124,14 +124,14 @@ where
     }
 
     /// Create an empty form with default values for the associated type.
-    fn empty_form<A>() -> StrunemixForm<T, U, A, N>
+    fn empty_form<A>() -> StrunemixForm<T, U, N, A>
     where 
         A: Default,
         T: PartialEq
     {
         let names = Self::as_attr_name_array();
 
-        let res: StrunemixMap<T, U, A, N> = names.into_iter()
+        let res: StrunemixMap<T, U, N, A> = names.into_iter()
         .map(|name| (name, (None, A::default())))
         .collect();
 

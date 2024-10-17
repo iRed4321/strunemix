@@ -8,15 +8,14 @@ pub struct Person<'a, A>{
     note: A
 }
 
-impl<'a, 'b> StrunemixParsableData<'a, PersonAttrName> for PersonAttrData::<'b, String>
+impl<'a, 'b> StrunemixParsableData<'a, PersonAttrData::<'b, String>> for PersonAttrName
     where 'a: 'b
 {
-    fn from_name_and_data(s: PersonAttrName, arg: &'a str) -> Result<Self, ()>
-    {
-        match s {
-            PersonAttrName::Name => Ok(PersonAttrData::Name(Some(arg))),
-            PersonAttrName::Age => arg.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age)),
-            PersonAttrName::Note => Ok(PersonAttrData::Note(arg.to_string()))
+    fn add_data(&self, data: &'a str) -> Result<PersonAttrData::<'b, String>, ()> {
+        match self {
+            PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data))),
+            PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age)),
+            PersonAttrName::Note => Ok(PersonAttrData::Note(data.to_string()))
         }
     }
 }
@@ -24,8 +23,7 @@ impl<'a, 'b> StrunemixParsableData<'a, PersonAttrName> for PersonAttrData::<'b, 
 #[test]
 fn from_name(){
     let name = PersonAttrName::Name;
-    let data = "John";
-    let name_data = PersonAttrData::from_name_and_data(name, data).unwrap();
+    let name_data = name.add_data("John").unwrap();
 
     assert_eq!(name_data, PersonAttrData::Name(Some("John")));
 }
@@ -34,7 +32,7 @@ fn from_name(){
 fn from_string(){
     let name = "name";
     let data = "John";
-    let name_data = PersonAttrData::from_str_and_data(name, data).unwrap();
+    let name_data = PersonAttrName::from_str(name).unwrap().add_data(data).unwrap();
 
     assert_eq!(name_data, PersonAttrData::Name(Some("John")));
 }
