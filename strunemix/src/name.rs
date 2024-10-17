@@ -41,9 +41,13 @@ pub trait StrunemixName : Sized + std::str::FromStr
 
 }
 
+
+use crate::StrunemixForm;
+
 /// Trait that allow the conversion from a string slice to the inner type of an enum data.
 /// 
-/// Implement it to allow the use the function [`StrunemixForm::set_data_str`].
+/// Implement it on [StrunemixName] enum to allow the use of [add_data][StrunemixParsableData] on it.\
+/// It also enables the use of [`StrunemixForm::set_data_str`] on a [StrunemixForm] to set data from a string slice.
 /// 
 /// # Example
 /// 

@@ -1,10 +1,10 @@
 [package]
 name = "strunemix"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 license = "MIT"
 keywords = ["struct", "name", "data", "type", "enum"]
-description = "Strunemix allows make a form with a struct, by deriving enums of it"
+description = "Strunemix allows to build a struct with a form of its fields, by deriving enums of them"
 authors = ["Léo Parent <ired4321@gmail.com>"]
 categories = ["rust-patterns", "development-tools::procedural-macro-helpers"]
 repository = "https://github.com/iRed4321/strunemix"

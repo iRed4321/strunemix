@@ -1,6 +1,9 @@
 # strunemix
 
-Strunemix allows to work with structs as if they were enums.
+[![Crates.io](https://img.shields.io/crates/v/strunemix.svg)](https://crates.io/crates/strunemix)
+[![Docs](https://docs.rs/strunemix/badge.svg)](https://docs.rs/strunemix)
+
+Strunemix allows to build a struct with a form of its fields, by deriving enums of them.
 
 ## Example
 
@@ -11,59 +14,67 @@ use strunemix::*;
 #[strunemix_derive_data(Debug, PartialEq, Clone)]
 struct Person {
    pseudo: String,
-   phone: Option<String>,
    age: i32,
 }
 
 let person = Person {
-    pseudo: "MyCoolPseudo".to_string(),
-    phone: Some("123456789".to_string()),
+    pseudo: "BestPseudo".to_string(),
     age: 42
 };
 
-let pseudo_name = PersonAttrName::Pseudo;
-let phone_name = PersonAttrName::Phone;
-let age_name = PersonAttrName::Age;
+// Attributes names are turned to an enum
+assert_eq!(Person::as_attr_name_array(), [PersonAttrName::Pseudo, PersonAttrName::Age]);
+assert_eq!(PersonAttrName::Pseudo.name(), "pseudo");
+assert_eq!(PersonAttrName::Age.name(), "age");
 
-assert_eq!(Person::as_attr_name_array(), [pseudo_name, phone_name, age_name]);
-assert_eq!(pseudo_name.name(), "pseudo");
-assert_eq!(phone_name.name(), "phone");
-assert_eq!(age_name.name(), "age");
-
-let pseudo_data = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
-let phone_data = PersonAttrData::Phone(Some("123456789".to_string()));
+// Attributes data are turned to an enum
+let pseudo_data = PersonAttrData::Pseudo("BestPseudo".to_string());
 let age_data = PersonAttrData::Age(42);
+assert_eq!(person.to_attr_data_array(), [pseudo_data, age_data]);
 
-let person_data = person.clone().to_attr_data_array();
-assert_eq!(person_data, [pseudo_data.clone(), phone_data.clone(), age_data.clone()]);
+// Move between the struct and a form of it
+let mut form = Person::empty_form::<()>();
+form.set_data(PersonAttrName::Pseudo, PersonAttrData::Pseudo("BeckyTheBest".to_string()));
+form.set_data(PersonAttrName::Age, PersonAttrData::Age(25));
 
-let personcopy = Person::from_attr_data_array([pseudo_data, phone_data, age_data]).unwrap();
+let becky = Person::from_form(form).unwrap();
 
-assert_eq!(person, personcopy);
+assert_eq!(becky, Person { pseudo: "BeckyTheBest".to_string(), age: 25 });
 ```
-If you want to build the attribute data from string values, you must implement the [`StrunemixParsableData`] trait to handle the conversion from the data to the struct fields.
+If you want to build the attribute data from string values, you must implement the [`StrunemixParsableData`] trait to handle the conversion from the string data to the struct fields.
 
 ```rust
-impl StrunemixParsableData<'_, PersonAttrName> for PersonAttrData {
-  fn with_attr_name(name: PersonAttrName, data: &str) -> Result<Self, ()> {
-    match name {
+// Implement the trait for the enum names
+impl StrunemixParsableData<'_, PersonAttrData> for PersonAttrName {
+  fn add_data(&self, data: &str) -> Result<PersonAttrData, ()> {
+    match self {
       PersonAttrName::Pseudo => Ok(PersonAttrData::Pseudo(data.to_string())),
-      PersonAttrName::Phone => Ok(PersonAttrData::Phone(Some(data.to_string()))),
       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
     }
   }
 }
 
-let pseudo_name = PersonAttrName::Pseudo;
-let psudo_name_str = "pseudo";
-let data = "MyCoolPseudo";
-
+// Build the attribute data from string values
 let pseudo_expected = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
-let pseudo_from_name = PersonAttrData::with_attr_name(pseudo_name, data).unwrap();
-let pseudo_from_str = PersonAttrData::with_attr_str(psudo_name_str, data).unwrap();
+let pseudo = PersonAttrName::from_str("pseudo").unwrap().add_data("MyCoolPseudo").unwrap();
+assert_eq!(&pseudo_expected, &pseudo);
 
-assert_eq!(&pseudo_expected, &pseudo_from_name);
-assert_eq!(&pseudo_expected, &pseudo_from_str);
+let mut form = Person::empty_form::<()>();
+
+// Add the data to the form the way you want
+
+// With the generated enums
+form.set_data(PersonAttrName::Age, PersonAttrData::Age(42));
+
+// or with the name as a string
+form.set_data("age", PersonAttrData::Age(42));
+
+// or with a string for the data
+form.set_data_str(PersonAttrName::Pseudo, "MyCoolPseudo");
+
+// or with only strings
+form.set_data_str("pseudo", "MyCoolPseudo");
+#
 ```
 
 License: MIT

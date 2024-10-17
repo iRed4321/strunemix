@@ -1,4 +1,4 @@
-//! Strunemix allows make a form with a struct, by deriving enums of it.
+//! Strunemix allows to build a struct with a form of its fields, by deriving enums of them.
 //! 
 //! # Example
 //! 
