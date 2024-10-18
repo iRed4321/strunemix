@@ -41,7 +41,7 @@ pub trait StrunemixName : Sized + std::str::FromStr
 
 }
 
-
+#[cfg(doc)]
 use crate::StrunemixForm;
 
 /// Trait that allow the conversion from a string slice to the inner type of an enum data.

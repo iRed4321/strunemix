@@ -5,7 +5,7 @@
 //! ```rust
 //! use strunemix::*;
 //! 
-//! #[derive(Debug, PartialEq, Clone, Strunemix)]
+//! #[derive(Debug, PartialEq, Strunemix)]
 //! #[strunemix_derive_data(Debug, PartialEq, Clone)]
 //! struct Person {
 //!    pseudo: String,
@@ -170,13 +170,13 @@
 /// 
 /// `#[strunemix_derive]` can be used to derive some macros on both the generated enums names and data.
 /// If the attribute is not used, the macros derived are the same as the ones derived on the enums names and data.
+pub use strunemix_macros::Strunemix;
 
 mod data;
 mod top;
 mod form;
 mod name;
     
-pub use strunemix_macros::Strunemix;
 pub use crate::name::*;
 pub use crate::data::*;
 pub use crate::form::*;
