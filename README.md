@@ -10,7 +10,7 @@ Strunemix allows to build a struct with a form of its fields, by deriving enums 
 ```rust
 use strunemix::*;
 
-#[derive(Debug, PartialEq, Clone, Strunemix)]
+#[derive(Debug, PartialEq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq, Clone)]
 struct Person {
    pseudo: String,
@@ -24,8 +24,8 @@ let person = Person {
 
 // Attributes names are turned to an enum
 assert_eq!(Person::as_attr_name_array(), [PersonAttrName::Pseudo, PersonAttrName::Age]);
-assert_eq!(PersonAttrName::Pseudo.name(), "pseudo");
-assert_eq!(PersonAttrName::Age.name(), "age");
+assert_eq!(PersonAttrName::Pseudo.get_str(), "pseudo");
+assert_eq!(PersonAttrName::Age.get_str(), "age");
 
 // Attributes data are turned to an enum
 let pseudo_data = PersonAttrData::Pseudo("BestPseudo".to_string());
@@ -56,7 +56,7 @@ impl StrunemixParsableData<'_, PersonAttrData> for PersonAttrName {
 
 // Build the attribute data from string values
 let pseudo_expected = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
-let pseudo = PersonAttrName::from_str("pseudo").unwrap().add_data("MyCoolPseudo").unwrap();
+let pseudo = "pseudo".field_of::<Person>().unwrap().add_data("MyCoolPseudo").unwrap();
 assert_eq!(&pseudo_expected, &pseudo);
 
 let mut form = Person::empty_form::<()>();
@@ -74,7 +74,6 @@ form.set_data_str(PersonAttrName::Pseudo, "MyCoolPseudo");
 
 // or with only strings
 form.set_data_str("pseudo", "MyCoolPseudo");
-
 ```
 
 License: MIT

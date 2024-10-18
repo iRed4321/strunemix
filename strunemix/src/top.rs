@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::*;
 
 /// Trait implemented automatically on structs that have been strunemixed.
@@ -138,4 +140,48 @@ where
         StrunemixForm::from(res)
     }
 
+}
+
+/// Trait implemented automatically to convert a string into an enum name easily.
+/// 
+/// ```rust
+/// use strunemix::*;
+/// 
+/// #[derive(Debug, PartialEq, Strunemix)]
+/// struct Foo {
+///    bar: i32,
+/// }
+/// 
+/// let name = "bar".field_of::<Foo>().unwrap();
+/// assert_eq!(name, FooAttrName::Bar);
+pub trait AsEnumName<T, U, const N: usize>
+{
+    #[doc(hidden)]
+    fn field_of<S>(&self)-> Option<T>
+    where
+        S: StrunemixTrait<T, U, N>,
+        T: StrunemixName + From<U>,
+        U: StrunemixData<T>;
+}
+
+impl<T, U, const N: usize> AsEnumName<T, U, N> for &str
+{
+    fn field_of<S>(&self)-> Option<T>
+    where
+        S: StrunemixTrait<T, U, N>,
+        T: StrunemixName + From<U>,
+        U: StrunemixData<T>{
+            <T as StrunemixName>::from_str(self)
+        }
+}
+
+impl<T, U, const N: usize> AsEnumName<T, U, N> for Cow<'_, str>
+{
+    fn field_of<S>(&self)-> Option<T>
+    where
+        S: StrunemixTrait<T, U, N>,
+        T: StrunemixName + From<U>,
+        U: StrunemixData<T>{
+            <T as StrunemixName>::from_str(self)
+        }
 }

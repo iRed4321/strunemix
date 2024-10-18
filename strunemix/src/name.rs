@@ -15,9 +15,9 @@ pub trait StrunemixName : Sized + std::str::FromStr
     /// 
     /// let age = PersonAttrName::Age;
     /// 
-    /// assert_eq!(age.name(), "age");
+    /// assert_eq!(age.get_str(), "age");
     /// ```
-    fn name(&self) -> &'static str {
+    fn get_str(&self) -> &'static str {
         panic!("This function should be implemented by the derive macro")
     }
 

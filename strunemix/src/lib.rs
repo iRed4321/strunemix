@@ -1,3 +1,6 @@
+//! [![Crates.io](https://img.shields.io/crates/v/strunemix.svg)](https://crates.io/crates/strunemix)
+//! [![Docs](https://docs.rs/strunemix/badge.svg)](https://docs.rs/strunemix)
+//! 
 //! Strunemix allows to build a struct with a form of its fields, by deriving enums of them.
 //! 
 //! # Example
@@ -19,8 +22,8 @@
 //! 
 //! // Attributes names are turned to an enum
 //! assert_eq!(Person::as_attr_name_array(), [PersonAttrName::Pseudo, PersonAttrName::Age]);
-//! assert_eq!(PersonAttrName::Pseudo.name(), "pseudo");
-//! assert_eq!(PersonAttrName::Age.name(), "age");
+//! assert_eq!(PersonAttrName::Pseudo.get_str(), "pseudo");
+//! assert_eq!(PersonAttrName::Age.get_str(), "age");
 //! 
 //! // Attributes data are turned to an enum
 //! let pseudo_data = PersonAttrData::Pseudo("BestPseudo".to_string());
@@ -58,7 +61,7 @@
 //! 
 //! // Build the attribute data from string values
 //! let pseudo_expected = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
-//! let pseudo = PersonAttrName::from_str("pseudo").unwrap().add_data("MyCoolPseudo").unwrap();
+//! let pseudo = "pseudo".field_of::<Person>().unwrap().add_data("MyCoolPseudo").unwrap();
 //! assert_eq!(&pseudo_expected, &pseudo);
 //! 
 //! let mut form = Person::empty_form::<()>();
@@ -76,7 +79,6 @@
 //! 
 //! // or with only strings
 //! form.set_data_str("pseudo", "MyCoolPseudo");
-//! #
 //! # let person = Person { pseudo: "MyCoolPseudo".to_string(), age: 42 };
 //! # assert_eq!(person, Person::from_form(form).unwrap());
 //! ```

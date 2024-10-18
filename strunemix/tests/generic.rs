@@ -39,7 +39,7 @@ fn data_array() {
 #[test]
 fn from_enum_name() {
     let age = PersonAttrName::Age;
-    assert!(age.name() == "age");
+    assert!(age.get_str() == "age");
 }
 
 #[test]

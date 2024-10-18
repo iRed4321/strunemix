@@ -258,7 +258,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         }
 
         impl StrunemixName for #enum_name {
-            fn name(&self) -> &'static str {
+            fn get_str(&self) -> &'static str {
                 match *self {
                     #(#field_name_to_strs),*
                 }
