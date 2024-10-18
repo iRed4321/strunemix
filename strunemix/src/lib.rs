@@ -51,17 +51,18 @@
 //! # }
 //! // Implement the trait for the enum names
 //! impl StrunemixParsableData<'_, PersonAttrData> for PersonAttrName {
-//!   fn add_data(&self, data: &str) -> Result<PersonAttrData, ()> {
+//!   fn add_data(&self, data: &str) -> Result<PersonAttrData, StrunemixParseError> {
 //!     match self {
 //!       PersonAttrName::Pseudo => Ok(PersonAttrData::Pseudo(data.to_string())),
-//!       PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age))
+//!       PersonAttrName::Age => Ok(PersonAttrData::Age(data.parse()?))
 //!     }
 //!   }
 //! }
 //! 
+//! fn main() -> Result<(), StrunemixError> {
 //! // Build the attribute data from string values
 //! let pseudo_expected = PersonAttrData::Pseudo("MyCoolPseudo".to_string());
-//! let pseudo = "pseudo".field_of::<Person>().unwrap().add_data("MyCoolPseudo").unwrap();
+//! let pseudo = "pseudo".field_of::<Person>()?.add_data("MyCoolPseudo")?;
 //! assert_eq!(&pseudo_expected, &pseudo);
 //! 
 //! let mut form = Person::empty_form::<()>();
@@ -69,18 +70,20 @@
 //! // Add the data to the form the way you want
 //! 
 //! // With the generated enums
-//! form.set_data(PersonAttrName::Age, PersonAttrData::Age(42));
+//! form.set_data(PersonAttrName::Age, PersonAttrData::Age(42))?;
 //! 
 //! // or with the name as a string
-//! form.set_data("age", PersonAttrData::Age(42));
+//! form.set_data("age", PersonAttrData::Age(42))?;
 //! 
 //! // or with a string for the data
-//! form.set_data_str(PersonAttrName::Pseudo, "MyCoolPseudo");
+//! form.set_data_str(PersonAttrName::Pseudo, "MyCoolPseudo")?;
 //! 
 //! // or with only strings
-//! form.set_data_str("pseudo", "MyCoolPseudo");
+//! form.set_data_str("pseudo", "MyCoolPseudo")?;
 //! # let person = Person { pseudo: "MyCoolPseudo".to_string(), age: 42 };
-//! # assert_eq!(person, Person::from_form(form).unwrap());
+//! # assert_eq!(person, Person::from_form(form)?);
+//! # Ok(())
+//! # }
 //! ```
 
 
@@ -178,8 +181,10 @@ mod data;
 mod top;
 mod form;
 mod name;
+mod error;
     
 pub use crate::name::*;
 pub use crate::data::*;
 pub use crate::form::*;
 pub use crate::top::*;
+pub use crate::error::*;

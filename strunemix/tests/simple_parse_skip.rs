@@ -10,7 +10,7 @@ pub struct Person {
 }
 
 impl<'a> StrunemixParsableData<'a, PersonAttrData> for PersonAttrName {
-    fn add_data(&self, data: &str) -> Result<PersonAttrData, ()> {
+    fn add_data(&self, data: &str) -> Result<PersonAttrData, StrunemixParseError> {
         match &self {
             PersonAttrName::Name => Ok(PersonAttrData::Name(data.to_string())),
         }

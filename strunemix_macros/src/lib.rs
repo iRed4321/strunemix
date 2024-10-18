@@ -99,7 +99,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         quote! {
             #field_ident: match #field_ident {
                 #enum_data::#variant_ident(value) => value,
-                _ => return Err(()),
+                _ => return Err(StrunemixFromError::WrongOrder),
             }
         }
     });
@@ -187,7 +187,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         (true, true, false) => quote! {
             impl TryFrom<[#enum_data; #fields_count]> for #ty
             {
-                type Error = ();
+                type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
 
                     let [#(#fields_idents),*] = source;
@@ -203,7 +203,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
 
             impl TryFrom<[#enum_data; #fields_count]> for #ty
             {
-                type Error = ();
+                type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
 
                     let [#(#fields_idents),*] = source;
@@ -219,7 +219,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
             impl #impl_generics TryFrom<[#enum_data #ty_generics; #fields_count]> for #ty #ty_generics
                 #where_clause
             {
-                type Error = ();
+                type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data #ty_generics; #fields_count]) -> Result<Self, Self::Error> {
                     
                     let [#(#fields_idents),*] = source;
@@ -235,7 +235,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
             impl #impl_generics TryFrom<[#enum_data #ty_generics; #fields_count]> for #ty #ty_generics
                 #where_clause
             {
-                type Error = ();
+                type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data #ty_generics; #fields_count]) -> Result<Self, Self::Error> {
                     
                     let [#(#fields_idents),*] = source;
@@ -249,6 +249,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
 
     };
 
+    let enum_name_str = enum_name.to_string();
     let tokens = quote! {
 
         //name
@@ -268,11 +269,11 @@ pub fn field_type(input: TokenStream) -> TokenStream {
         impl #impl_generics StrunemixData<#enum_name> for #enum_data #ty_generics #where_clause {}
 
         impl std::str::FromStr for #enum_name {
-            type Err = ();
+            type Err = StrunemixFromError;
             fn from_str(name: &str) -> Result<Self, Self::Err> {
                 match name {
                     #(#field_name_by_strs),*,
-                    _ => Err(())
+                    _ => Err(StrunemixFromError::NotAnEnumName(name.to_string(), #enum_name_str.to_string())),
                 }
             }
         }

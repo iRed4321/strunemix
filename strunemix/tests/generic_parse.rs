@@ -11,10 +11,10 @@ pub struct Person<'a, A>{
 impl<'a, 'b> StrunemixParsableData<'a, PersonAttrData::<'b, String>> for PersonAttrName
     where 'a: 'b
 {
-    fn add_data(&self, data: &'a str) -> Result<PersonAttrData::<'b, String>, ()> {
+    fn add_data(&self, data: &'a str) -> Result<PersonAttrData::<'b, String>, StrunemixParseError> {
         match self {
             PersonAttrName::Name => Ok(PersonAttrData::Name(Some(data))),
-            PersonAttrName::Age => data.parse().map_err(|_| ()).map(|age| PersonAttrData::Age(age)),
+            PersonAttrName::Age => Ok(data.parse().map(|age| PersonAttrData::Age(age))?),
             PersonAttrName::Note => Ok(PersonAttrData::Note(data.to_string()))
         }
     }

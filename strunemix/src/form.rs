@@ -48,21 +48,26 @@ where
     ///    bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let foo_form_empty = Foo::empty_form::<AdditionalMetadata>();
-    /// assert_eq!(foo_form_empty.get_data(FooAttrName::Bar), None);
+    /// assert_eq!(foo_form_empty.get_data(FooAttrName::Bar)?, None);
     /// 
     /// let foo = Foo {bar: 42};
     /// let foo_form = foo.to_form::<AdditionalMetadata>();
-    /// assert_eq!(foo_form.get_data(FooAttrName::Bar), Some(&FooAttrData::Bar(42)));
+    /// assert_eq!(foo_form.get_data(FooAttrName::Bar)?, Some(&FooAttrData::Bar(42)));
+    /// # Ok(())
+    /// # }
     /// ```
     /// 
     /// # Panics
     /// Panics if the key does not exist, it should't happen.
-    pub fn get_data(&self, name: impl QueryNameTrait<T>) -> Option<&U>{
-        let name = name.to_attrname();
-        self.map.get(&name).map(|(data, _)| data)
+    pub fn get_data(&self, name: impl QueryNameTrait<T>) -> Result<Option<&U>, StrunemixError>{
+        let name = name.to_attrname()?;
+        let found = self.map.get(&name).map(|(data, _)| data)
         .expect(ERR_MISSING_KEY)
-        .as_ref()
+        .as_ref();
+
+        Ok(found)
     }
 
     /// Get the info of a field by its name
@@ -79,16 +84,21 @@ where
     ///   bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let form = Foo::empty_form::<AdditionalMetadata>();
-    /// assert_eq!(form.get_info(FooAttrName::Bar), &AdditionalMetadata(String::new()));
+    /// assert_eq!(form.get_info(FooAttrName::Bar)?, &AdditionalMetadata(String::new()));
+    /// # Ok(())
+    /// # }
     /// ```
     /// 
     /// # Panics
     /// Panics if the key does not exist, it should't happen.
-    pub fn get_info(&self, name: impl QueryNameTrait<T>) -> &A {
-        let name = name.to_attrname();
-        self.map.get(&name).map(|(_, info)| info)
-        .expect(ERR_MISSING_KEY)
+    pub fn get_info(&self, name: impl QueryNameTrait<T>) -> Result<&A, StrunemixError> {
+        let name = name.to_attrname()?;
+        let found = self.map.get(&name).map(|(_, info)| info)
+        .expect(ERR_MISSING_KEY);
+
+        Ok(found)
     }
 
     /// Get a mutable reference to the data of a field by its name
@@ -105,23 +115,28 @@ where
     ///   bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let foo = Foo {bar: 42};
     /// let mut foo_form = foo.to_form::<AdditionalMetadata>();
     /// 
-    /// if let Some(bar) = foo_form.get_data_mut(FooAttrName::Bar){
+    /// if let Some(bar) = foo_form.get_data_mut(FooAttrName::Bar)?{
     ///     *bar = FooAttrData::Bar(666);
     /// }
     /// 
-    /// assert_eq!(foo_form.get_data(FooAttrName::Bar), Some(&FooAttrData::Bar(666)));
+    /// assert_eq!(foo_form.get_data(FooAttrName::Bar)?, Some(&FooAttrData::Bar(666)));
+    /// # Ok(())
+    /// # }
     /// ```
     /// 
     /// # Panics
     /// Panics if the key does not exist, it should't happen.
-    pub fn get_data_mut(&mut self, name: impl QueryNameTrait<T>) -> Option<&mut U>{
-        let name = name.to_attrname();
-        self.map.get_mut(&name).map(|(data, _)| data)
+    pub fn get_data_mut(&mut self, name: impl QueryNameTrait<T>) -> Result<Option<&mut U>, StrunemixError>{
+        let name = name.to_attrname()?;
+        let found = self.map.get_mut(&name).map(|(data, _)| data)
         .expect(ERR_MISSING_KEY)
-        .as_mut()
+        .as_mut();
+
+        Ok(found)
     }
 
     /// Get a mutable reference to the info of a field by its name
@@ -138,21 +153,26 @@ where
     ///   bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let mut foo_form = Foo::empty_form::<AdditionalMetadata>();
     /// 
-    /// if let AdditionalMetadata(bar) = foo_form.get_info_mut(FooAttrName::Bar){
+    /// if let AdditionalMetadata(bar) = foo_form.get_info_mut(FooAttrName::Bar)?{
     ///    bar.push_str("bar");
     /// }
     /// 
-    /// assert_eq!(foo_form.get_info(FooAttrName::Bar), &AdditionalMetadata("bar".to_string()));
+    /// assert_eq!(foo_form.get_info(FooAttrName::Bar)?, &AdditionalMetadata("bar".to_string()));
+    /// # Ok(())
+    /// # }
     /// ```
     /// 
     /// # Panics
     /// Panics if the key does not exist, it should't happen.
-    pub fn get_info_mut(&mut self, name: impl QueryNameTrait<T>) -> &mut A{
-        let name = name.to_attrname();
-        self.map.get_mut(&name).map(|(_, info)| info)
-        .expect(ERR_MISSING_KEY)
+    pub fn get_info_mut(&mut self, name: impl QueryNameTrait<T>) -> Result<&mut A, StrunemixError>{
+        let name = name.to_attrname()?;
+        let found = self.map.get_mut(&name).map(|(_, info )| info)
+        .expect(ERR_MISSING_KEY);
+
+        Ok(found)
     }
 
     /// Set the data of a field by its name
@@ -169,33 +189,40 @@ where
     ///   bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let foo = Foo {bar: 42};
     /// let mut foo_form = foo.to_form::<AdditionalMetadata>();
     /// 
     /// foo_form.set_data(FooAttrName::Bar, FooAttrData::Bar(666));
     /// 
-    /// assert_eq!(foo_form.get_data(FooAttrName::Bar), Some(&FooAttrData::Bar(666)));
+    /// assert_eq!(foo_form.get_data(FooAttrName::Bar)?, Some(&FooAttrData::Bar(666)));
+    /// # Ok(())
+    /// # }
     /// ```
     /// 
     /// # Panics
     /// Panics if the key does not exist, it should't happen.
-    pub fn set_data(&mut self, name: impl QueryNameTrait<T>, data: U){
-        let name = name.to_attrname();
+    pub fn set_data(&mut self, name: impl QueryNameTrait<T>, data: U) -> Result<(), StrunemixError> {
+        let name = name.to_attrname()?;
         self.map.get_mut(&name)
         .expect(ERR_MISSING_KEY)
         .0 = Some(data);
+
+        Ok(())
     }
 
-    pub fn set_data_str<'a>(&mut self, name: impl QueryNameTrait<T>, data: &'a str)
+    pub fn set_data_str<'a>(&mut self, name: impl QueryNameTrait<T>, data: &'a str) -> Result<(), StrunemixError>
     where
         T: StrunemixParsableData<'a, U>
     {
-        let name = name.to_attrname();
-        let data = name.add_data(data).unwrap();
+        let name = name.to_attrname()?;
+        let data = name.add_data(data)?;
 
         self.map.get_mut(&name)
         .expect(ERR_MISSING_KEY)
         .0 = Some(data);
+
+        Ok(())
     }
 
     /// Remove the data of a field by its name
@@ -212,22 +239,27 @@ where
     ///   bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let foo = Foo {bar: 42};
     /// 
     /// let mut foo_form = foo.to_form::<AdditionalMetadata>();
     /// 
-    /// foo_form.remove_data(FooAttrName::Bar);
+    /// foo_form.remove_data(FooAttrName::Bar)?;
     /// 
-    /// assert_eq!(foo_form.get_data(FooAttrName::Bar), None);
+    /// assert_eq!(foo_form.get_data(FooAttrName::Bar)?, None);
+    /// # Ok(())
+    /// # }
     /// ```
     /// 
     /// # Panics
     /// Panics if the key does not exist, it should't happen.
-    pub fn remove_data(&mut self, name: impl QueryNameTrait<T>){
-        let name = name.to_attrname();
+    pub fn remove_data(&mut self, name: impl QueryNameTrait<T>) -> Result<(), StrunemixError> {
+        let name = name.to_attrname()?;
         self.map.get_mut(&name)
         .expect(ERR_MISSING_KEY)
         .0 = None;
+
+        Ok(())
     }
 
     /// Set the info of a field by its name
@@ -244,17 +276,22 @@ where
     ///   bar: i32,
     /// }
     /// 
+    /// # fn main() -> Result<(), StrunemixError> {
     /// let mut foo_form = Foo::empty_form::<AdditionalMetadata>();
     /// 
     /// foo_form.set_info(FooAttrName::Bar, AdditionalMetadata("bar".to_string()));
     /// 
-    /// assert_eq!(foo_form.get_info(FooAttrName::Bar), &AdditionalMetadata("bar".to_string()));
+    /// assert_eq!(foo_form.get_info(FooAttrName::Bar)?, &AdditionalMetadata("bar".to_string()));
+    /// # Ok(())
+    /// # }
     /// 
-    pub fn set_info(&mut self, name: impl QueryNameTrait<T>, info: A){
-        let name = name.to_attrname();
+    pub fn set_info(&mut self, name: impl QueryNameTrait<T>, info: A) -> Result<(), StrunemixError> {
+        let name = name.to_attrname()?;
         self.map.get_mut(&name)
         .expect(ERR_MISSING_KEY)
         .1 = info;
+
+        Ok(())
     }
 
     /// Check that all the fields have data
@@ -303,17 +340,17 @@ where
     /// let mut foo_form = Foo::empty_form::<AdditionalMetadata>();
     /// foo_form.set_data(FooAttrName::Bar, FooAttrData::Bar(42));
     /// 
-    /// let err = foo_form.clone().to_data_array().unwrap_err();
-    /// assert_eq!(err, ());
+    /// if let Err(StrunemixError::IncompleteForm) = foo_form.clone().to_data_array() {}
+    /// else { assert!(false); }
     /// 
     /// foo_form.set_data(FooAttrName::Baz, FooAttrData::Baz(true));
     /// let data = foo_form.to_data_array().unwrap();
     /// assert_eq!(data, [FooAttrData::Bar(42), FooAttrData::Baz(true)]);
     /// ```
-    pub fn to_data_array(self) -> Result<[U; N], ()>{
+    pub fn to_data_array(self) -> Result<[U; N], StrunemixError>{
 
         if !self.is_complete(){
-            return Err(());
+            return Err(StrunemixError::IncompleteForm);
         }
 
         let vec : CollectArrayResult<U,N> = self.map.into_iter()
@@ -355,15 +392,16 @@ pub trait QueryNameTrait<T>
 where 
     T: StrunemixName
 {
-    fn to_attrname(self) -> T;
+    fn to_attrname(self) -> Result<T, StrunemixFromError>;
 }
 
 impl<T> QueryNameTrait<T> for &str
 where
     T: StrunemixName
 {
-    fn to_attrname(self) -> T {
-        <T as StrunemixName>::from_str(self).unwrap()
+    fn to_attrname(self) -> Result<T, StrunemixFromError>
+    {
+        <T as name::StrunemixName>::from_str(self)
     }
 }
 
@@ -371,7 +409,7 @@ impl<T> QueryNameTrait<T> for T
 where
     T: StrunemixName
 {
-    fn to_attrname(self) -> T {
-        self
+    fn to_attrname(self) -> Result<T, StrunemixFromError> {
+        Ok(self)
     }
 }

@@ -89,9 +89,13 @@ where
     /// let expected = Person {pseudo: "John".to_string(), phone: Some("123456789".to_string()), age: 42};
     /// 
     /// assert_eq!(person, expected);
-    fn from_attr_data_array(data: [U; N]) -> Result<Self, ()>
-    where Self: TryFrom<[U; N]> {
-        TryFrom::try_from(data).map_err(|_| ())
+    fn from_attr_data_array(data: [U; N]) -> Result<Self, StrunemixError>
+    where Self: TryFrom<[U; N], Error = StrunemixFromError>,
+    {
+        TryFrom::try_from(data)
+        .map_err(|error| 
+            StrunemixError::ConversionError(error)
+        )
     }
 
     /// Consume the struct into a map-like structure convienient for form handling.
@@ -114,13 +118,12 @@ where
     }
 
     /// Consume a form and convert it into a struct.
-    fn from_form<A>(form: StrunemixForm<T, U, N, A>) -> Result<Self, ()>
+    fn from_form<A>(form: StrunemixForm<T, U, N, A>) -> Result<Self, StrunemixError>
     where
-        Self: TryFrom<[U; N]>,
+        Self: TryFrom<[U; N], Error = StrunemixFromError>,
         T: PartialEq
     {
         let datas = form.to_data_array()?;
-        let datas = datas.try_into().map_err(|_| ())?;
         
         Self::from_attr_data_array(datas)
     }
@@ -157,7 +160,7 @@ where
 pub trait AsEnumName<T, U, const N: usize>
 {
     #[doc(hidden)]
-    fn field_of<S>(&self)-> Option<T>
+    fn field_of<S>(&self)-> Result<T, StrunemixFromError>
     where
         S: StrunemixTrait<T, U, N>,
         T: StrunemixName + From<U>,
@@ -166,22 +169,22 @@ pub trait AsEnumName<T, U, const N: usize>
 
 impl<T, U, const N: usize> AsEnumName<T, U, N> for &str
 {
-    fn field_of<S>(&self)-> Option<T>
+    fn field_of<S>(&self)-> Result<T, StrunemixFromError>
     where
         S: StrunemixTrait<T, U, N>,
         T: StrunemixName + From<U>,
         U: StrunemixData<T>{
-            <T as StrunemixName>::from_str(self)
+            <T as name::StrunemixName>::from_str(self)
         }
 }
 
 impl<T, U, const N: usize> AsEnumName<T, U, N> for Cow<'_, str>
 {
-    fn field_of<S>(&self)-> Option<T>
+    fn field_of<S>(&self)-> Result<T, StrunemixFromError>
     where
         S: StrunemixTrait<T, U, N>,
         T: StrunemixName + From<U>,
         U: StrunemixData<T>{
-            <T as StrunemixName>::from_str(self)
+            <T as name::StrunemixName>::from_str(self)
         }
 }
