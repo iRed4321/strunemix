@@ -1,4 +1,3 @@
-use collect_array::CollectArrayResult;
 use micromap::Map;
 
 use crate::*;
@@ -10,7 +9,7 @@ pub(crate) type StrunemixMap<T,U,const N: usize,A> = Map<T, (Option<U>, A), N>;
 #[derive(Debug, PartialEq, Clone)]
 pub struct StrunemixForm<T, U, const N: usize, A=()> 
 where 
-    T: StrunemixName + From<U> + PartialEq,
+    T: StrunemixName + PartialEq,
     U: StrunemixData<T>
 {
     map: StrunemixMap<T,U,N,A>
@@ -18,7 +17,7 @@ where
 
 impl<T,U,A, const N: usize> From<StrunemixMap<T,U,N,A>> for StrunemixForm<T, U, N, A> 
 where 
-    T: StrunemixName + From<U> + PartialEq,
+    T: StrunemixName + PartialEq,
     U: StrunemixData<T>
 {
     fn from(map: StrunemixMap<T,U,N,A>) -> Self {
@@ -30,7 +29,7 @@ const ERR_MISSING_KEY: &str = "The key does not exist, unexpected error";
 
 impl<T, U, const N: usize, A> StrunemixForm<T, U, N, A>
 where 
-    T: StrunemixName + From<U> + PartialEq,
+    T: StrunemixName + PartialEq,
     U: StrunemixData<T>
 {
 
@@ -175,7 +174,7 @@ where
         Ok(found)
     }
 
-    /// Set the data of a field by its name
+    /// Set the data of a field by its name (string or enum) and the data enum value
     /// 
     /// ```rust
     /// use strunemix::*;
@@ -194,6 +193,8 @@ where
     /// let mut foo_form = foo.to_form::<AdditionalMetadata>();
     /// 
     /// foo_form.set_data(FooAttrName::Bar, FooAttrData::Bar(666));
+    /// //or
+    /// foo_form.set_data("bar", FooAttrData::Bar(666));
     /// 
     /// assert_eq!(foo_form.get_data(FooAttrName::Bar)?, Some(&FooAttrData::Bar(666)));
     /// # Ok(())
@@ -211,6 +212,44 @@ where
         Ok(())
     }
 
+    /// Set the data of a field from its name (string or enum) and a string data.
+    /// Be sure to implement [StrunemixParsableData] on the enum name to allow the conversion from the string to the enum data and use this method.
+    /// 
+    /// ```rust
+    /// use strunemix::*;
+    /// 
+    /// #[derive(Debug, Default)]
+    /// struct AdditionalMetadata;
+    /// 
+    /// #[derive(Strunemix)]
+    /// #[strunemix_derive_data(Debug, PartialEq)]
+    /// struct Foo {
+    ///   bar: i32,
+    /// }
+    /// 
+    /// impl StrunemixParsableData<'_, FooAttrData> for FooAttrName {
+    ///   fn add_data(&self, data: &str) -> Result<FooAttrData, StrunemixParseError> {
+    ///     match self {
+    ///       FooAttrName::Bar => Ok(FooAttrData::Bar(data.parse()?)),
+    ///     }
+    ///   }
+    /// }
+    /// 
+    /// # fn main() -> Result<(), StrunemixError> {
+    /// let foo = Foo {bar: 42};
+    /// let mut foo_form = foo.to_form::<AdditionalMetadata>();
+    /// 
+    /// foo_form.set_data_str(FooAttrName::Bar, "666");
+    /// //or
+    /// foo_form.set_data_str("bar", "666");
+    /// 
+    /// assert_eq!(foo_form.get_data(FooAttrName::Bar)?, Some(&FooAttrData::Bar(666)));
+    /// # Ok(())
+    /// # }
+    /// ```
+    /// 
+    /// # Panics
+    /// Panics if the key does not exist, it should't happen.
     pub fn set_data_str<'a>(&mut self, name: impl QueryNameTrait<T>, data: &'a str) -> Result<(), StrunemixError>
     where
         T: StrunemixParsableData<'a, U>
@@ -353,11 +392,10 @@ where
             return Err(StrunemixError::IncompleteForm);
         }
 
-        let vec : CollectArrayResult<U,N> = self.map.into_iter()
-        .map(|(_, (data, _))| data.unwrap())
-        .collect();
+        let iter = self.map.into_iter().map(|(_, (data, _))| data.unwrap());
 
-        Ok(vec.unwrap())
+        let vec = array_init::from_iter(iter).unwrap();
+        Ok(vec)
     }
 
     /// Convert the form into an array of info

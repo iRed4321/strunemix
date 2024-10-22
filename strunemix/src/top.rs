@@ -5,7 +5,7 @@ use crate::*;
 /// Trait implemented automatically on structs that have been strunemixed.
 pub trait StrunemixTrait<T, U, const N: usize>
 where 
-    T: StrunemixName + From<U>,
+    T: StrunemixName,
     U: StrunemixData<T>
 {
 
@@ -34,9 +34,9 @@ where
     ///    name: Option<String>,
     /// }
     /// 
-    /// assert_eq!(Person::as_attr_name_array(), [PersonAttrName::Age, PersonAttrName::Name]);
+    /// assert_eq!(Person::as_name_array(), [PersonAttrName::Age, PersonAttrName::Name]);
     /// ```
-    fn as_attr_name_array() -> [T; N] {
+    fn as_name_array() -> [T; N] {
         panic!("This function should be implemented by the derive macro")
     }
 
@@ -58,11 +58,10 @@ where
     /// let age = PersonAttrData::Age(42);
     /// let name = PersonAttrData::Name(Some("John".to_string()));
     ///
-    /// assert_eq!(person.to_attr_data_array(), [age, name]);
+    /// assert_eq!(person.to_data_array(), [age, name]);
     /// ```
-    fn to_attr_data_array(self) -> [U; N]
+    fn to_data_array(self) -> [U; N]
     where 
-        U: StrunemixData<T>,
         Self: Sized
     {panic!("This function should be implemented by the derive macro")}
 
@@ -89,13 +88,10 @@ where
     /// let expected = Person {pseudo: "John".to_string(), phone: Some("123456789".to_string()), age: 42};
     /// 
     /// assert_eq!(person, expected);
-    fn from_attr_data_array(data: [U; N]) -> Result<Self, StrunemixError>
+    fn from_attr_data_array(data: [U; N]) -> Result<Self, StrunemixFromError>
     where Self: TryFrom<[U; N], Error = StrunemixFromError>,
     {
         TryFrom::try_from(data)
-        .map_err(|error| 
-            StrunemixError::ConversionError(error)
-        )
     }
 
     /// Consume the struct into a map-like structure convienient for form handling.
@@ -104,11 +100,11 @@ where
     fn to_form<A>(self) -> StrunemixForm<T, U, N, A>
     where 
         A: Default,
-        T: Eq,
+        T: PartialEq,
         Self: Sized,
     {
-        let names = Self::as_attr_name_array();
-        let datas = self.to_attr_data_array();
+        let names = Self::as_name_array();
+        let datas = self.to_data_array();
 
         let res: StrunemixMap<T, U, N, A> = names.into_iter().zip(datas.into_iter())
         .map(|(name, data)| (name, (Some(data), A::default())))
@@ -125,7 +121,7 @@ where
     {
         let datas = form.to_data_array()?;
         
-        Self::from_attr_data_array(datas)
+        Self::from_attr_data_array(datas).map_err(|e| e.into())
     }
 
     /// Create an empty form with default values for the associated type.
@@ -134,7 +130,7 @@ where
         A: Default,
         T: PartialEq
     {
-        let names = Self::as_attr_name_array();
+        let names = Self::as_name_array();
 
         let res: StrunemixMap<T, U, N, A> = names.into_iter()
         .map(|name| (name, (None, A::default())))
@@ -163,7 +159,7 @@ pub trait AsEnumName<T, U, const N: usize>
     fn field_of<S>(&self)-> Result<T, StrunemixFromError>
     where
         S: StrunemixTrait<T, U, N>,
-        T: StrunemixName + From<U>,
+        T: StrunemixName,
         U: StrunemixData<T>;
 }
 
@@ -172,7 +168,7 @@ impl<T, U, const N: usize> AsEnumName<T, U, N> for &str
     fn field_of<S>(&self)-> Result<T, StrunemixFromError>
     where
         S: StrunemixTrait<T, U, N>,
-        T: StrunemixName + From<U>,
+        T: StrunemixName,
         U: StrunemixData<T>{
             <T as name::StrunemixName>::from_str(self)
         }
@@ -183,7 +179,7 @@ impl<T, U, const N: usize> AsEnumName<T, U, N> for Cow<'_, str>
     fn field_of<S>(&self)-> Result<T, StrunemixFromError>
     where
         S: StrunemixTrait<T, U, N>,
-        T: StrunemixName + From<U>,
+        T: StrunemixName,
         U: StrunemixData<T>{
             <T as name::StrunemixName>::from_str(self)
         }

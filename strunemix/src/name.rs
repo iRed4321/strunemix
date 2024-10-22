@@ -49,7 +49,7 @@ use crate::StrunemixForm;
 
 /// Trait that allow the conversion from a string slice to the inner type of an enum data.
 /// 
-/// Implement it on [StrunemixName] enum to allow the use of [add_data][StrunemixParsableData] on it.\
+/// Implement it on a [StrunemixName] generated enum to allow the use of [add_data][StrunemixParsableData] on it.\
 /// It also enables the use of [`StrunemixForm::set_data_str`] on a [StrunemixForm] to set data from a string slice.
 /// 
 /// # Example
@@ -77,5 +77,31 @@ pub trait StrunemixParsableData<'a, U>
 where 
     Self: StrunemixName
 {
+    /// Add data from string to an enum name;
+    /// 
+    /// ```rust
+    /// use strunemix::*;
+    /// 
+    /// #[derive(Strunemix)]
+    /// #[strunemix_derive_data(Debug, PartialEq)]
+    /// pub struct Person {
+    ///    name: String,
+    ///    age: i32,
+    /// }
+    /// 
+    /// // {Implementation of StrunemixParsableData}
+    /// 
+    /// let name = PersonAttrName::Name;
+    /// let name_data = name.add_data("John").unwrap();
+    /// # impl StrunemixParsableData<'_, PersonAttrData> for PersonAttrName {
+    /// #   fn add_data(&self, data: &str) -> Result<PersonAttrData, StrunemixParseError> {
+    /// #     match &self {
+    /// #       PersonAttrName::Name => Ok(PersonAttrData::Name(data.to_string())),
+    /// #       PersonAttrName::Age => Ok(PersonAttrData::Age(data.parse()?))
+    /// #     }
+    /// #   }
+    /// # }
+    /// assert_eq!(name_data, PersonAttrData::Name("John".to_string()));
+    /// ```
     fn add_data(&self, data: &'a str) -> Result<U, StrunemixParseError>;
 }

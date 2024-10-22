@@ -2,7 +2,6 @@ use strunemix::*;
 
 #[derive(Debug, PartialEq, Eq, Strunemix)]
 #[strunemix_derive_data(Debug, PartialEq)]
-#[strunemix_derive_name(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct Person1 {
     name: String,
     age: i32,

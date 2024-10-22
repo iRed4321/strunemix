@@ -18,7 +18,7 @@ fn name_array() {
 
     let name = PersonAttrName::Name;
 
-    assert_eq!(Person::as_attr_name_array(), [name]);
+    assert_eq!(Person::as_name_array(), [name]);
 }
 
 #[test]
@@ -28,7 +28,7 @@ fn data_array() {
 
     let name = PersonAttrData::Name("John".to_string());
 
-    assert_eq!(person.to_attr_data_array(), [name]);
+    assert_eq!(person.to_data_array(), [name]);
 }
 
 #[test]

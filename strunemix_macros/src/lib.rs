@@ -16,7 +16,7 @@ pub fn field_type(input: TokenStream) -> TokenStream {
     let enum_name = Ident::new(&(ty.to_string() + "AttrName"), Span::call_site());
     let derive_type = get_enum_derive(&ast.attrs, &["strunemix_derive_data", "strunemix_derive"], quote! {});
     let derive_name = get_enum_derive(&ast.attrs, &["strunemix_derive_name", "strunemix_derive"], 
-    quote! {#[derive(Debug, PartialEq, Eq, Clone, Copy)] }
+    quote! {#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)] }
     );
     let fields = filter_fields(match ast.data {
         syn::Data::Struct(ref s) => &s.fields,
@@ -148,8 +148,8 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                 }
             }
 
-            impl From<#enum_data> for #enum_name {
-                fn from(source: #enum_data) -> Self {
+            impl From<&#enum_data> for #enum_name {
+                fn from(source: &#enum_data) -> Self {
                     match source {
                         #(#field_type_to_variant)*
                     }
@@ -170,16 +170,28 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                 }
             }
 
-            impl #impl_generics From<#enum_data #ty_generics> for #enum_name
+            impl #impl_generics From<&#enum_data #ty_generics> for #enum_name
                 #where_clause
             {
-                fn from(source: #enum_data #ty_generics) -> #enum_name {
+                fn from(source: &#enum_data #ty_generics) -> #enum_name {
                     match source {
                         #(#field_type_to_variant)*
                     }
                 }
             }
         }
+    };
+
+    let checks_more_than_once = quote! {
+        let mut namesall = source.iter().map(|data| data.name()).collect::<Vec<_>>();
+        namesall.dedup();
+
+        if namesall.len() != #fields_count {
+            return Err(StrunemixFromError::AppearedMoreThanOnce);
+        }
+
+        let mut source = source;
+        source.sort_by(|a, b| a.name().cmp(&b.name()));
     };
 
     let tryfromarray = match (haveskippedfields, generics.params.is_empty(), !have_default) {
@@ -189,6 +201,8 @@ pub fn field_type(input: TokenStream) -> TokenStream {
             {
                 type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
+
+                    #checks_more_than_once
 
                     let [#(#fields_idents),*] = source;
 
@@ -206,6 +220,8 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                 type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data; #fields_count]) -> Result<Self, Self::Error> {
 
+                    #checks_more_than_once
+
                     let [#(#fields_idents),*] = source;
 
                     Ok(#ty {
@@ -222,6 +238,8 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                 type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data #ty_generics; #fields_count]) -> Result<Self, Self::Error> {
                     
+                    #checks_more_than_once
+
                     let [#(#fields_idents),*] = source;
 
                     Ok(#ty {
@@ -238,6 +256,8 @@ pub fn field_type(input: TokenStream) -> TokenStream {
                 type Error = StrunemixFromError;
                 fn try_from(source: [#enum_data #ty_generics; #fields_count]) -> Result<Self, Self::Error> {
                     
+                    #checks_more_than_once
+
                     let [#(#fields_idents),*] = source;
 
                     Ok(#ty {
@@ -303,12 +323,12 @@ pub fn field_type(input: TokenStream) -> TokenStream {
             #where_clause
         {
 
-            fn to_attr_data_array(self) -> [#enum_data #ty_generics; #fields_count] {
+            fn to_data_array(self) -> [#enum_data #ty_generics; #fields_count] {
                 let #destructuring = self;
                 [#(#field_type_constructs),*]
             }
             
-            fn as_attr_name_array() -> [#enum_name; #fields_count] {
+            fn as_name_array() -> [#enum_name; #fields_count] {
                 [#(#field_name_constructs),*]
             }
         }

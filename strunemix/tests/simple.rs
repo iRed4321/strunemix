@@ -19,7 +19,7 @@ fn name_array() {
     let name = PersonAttrName::Name;
     let age = PersonAttrName::Age;
 
-    assert_eq!(Person::as_attr_name_array(), [name, age]);
+    assert_eq!(Person::as_name_array(), [name, age]);
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn data_array() {
     let name = PersonAttrData::Name("John".to_string());
     let age = PersonAttrData::Age(42);
 
-    assert_eq!(person.to_attr_data_array(), [name, age]);
+    assert_eq!(person.to_data_array(), [name, age]);
 }
 
 #[test]
@@ -57,6 +57,21 @@ fn make_enum_name() {
 fn name_on_data() {
     let name = PersonAttrData::Name("John".to_string());
     assert_eq!(name.name(), PersonAttrName::Name);
+}
+
+#[test]
+fn more_than_once() -> Result<(), StrunemixError> {
+
+    let name1 = PersonAttrData::Name("John".to_string());
+    let name2 = PersonAttrData::Name("Elen".to_string());
+
+    let data = [name1, name2];
+
+    let error = Person::from_attr_data_array(data).unwrap_err();
+
+    assert_eq!(error, StrunemixFromError::AppearedMoreThanOnce);
+
+    Ok(())
 }
 
 #[test]

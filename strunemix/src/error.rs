@@ -1,15 +1,17 @@
 use thiserror::Error;
 
 /// Strunemix errors in conversions
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum StrunemixFromError {
     #[error("Invalid input data, wrong order of data")]
     WrongOrder,
+    #[error("Invalid input data, some data attributes are missing while others are present more than once")]
+    AppearedMoreThanOnce,
     #[error("The string '{0}' is not a valid for the enum {1}")]
     NotAnEnumName(String, String),
 }
 
-/// Main Strunemix error
+/// General Strunemix error
 #[derive(Error, Debug)]
 pub enum StrunemixError {
     #[error("Parse error: {0}")]
