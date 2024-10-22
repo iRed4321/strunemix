@@ -213,7 +213,7 @@ where
     }
 
     /// Set the data of a field from its name (string or enum) and a string data.
-    /// Be sure to implement [StrunemixParsableData] on the enum name to allow the conversion from the string to the enum data and use this method.
+    /// Be sure to implement [StrunemixParsableData] on the enum of names to allow the conversion from the string to the enum of datas and use this method.
     /// 
     /// ```rust
     /// use strunemix::*;

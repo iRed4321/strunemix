@@ -47,7 +47,7 @@ use crate::{error::StrunemixParseError, StrunemixFromError};
 #[cfg(doc)]
 use crate::StrunemixForm;
 
-/// Trait that allow the conversion from a string slice to the inner type of an enum data.
+/// Trait that allow the conversion from a string slice to each of the inner types of an enum of datas.
 /// 
 /// Implement it on a [StrunemixName] generated enum to allow the use of [add_data][StrunemixParsableData] on it.\
 /// It also enables the use of [`StrunemixForm::set_data_str`] on a [StrunemixForm] to set data from a string slice.
@@ -77,7 +77,7 @@ pub trait StrunemixParsableData<'a, U>
 where 
     Self: StrunemixName
 {
-    /// Add data from string to an enum name;
+    /// Add data from string to an enum of name;
     /// 
     /// ```rust
     /// use strunemix::*;

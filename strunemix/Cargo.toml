@@ -1,6 +1,6 @@
 [package]
 name = "strunemix"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 license = "MIT"
 keywords = ["struct", "name", "data", "type", "enum"]
@@ -15,7 +15,7 @@ documentation = "https://docs.rs/strunemix"
 [dependencies]
 array-init = "2.1.0"
 micromap = "0.0.15"
-strunemix_macros = { path = "../strunemix_macros", version = "0.6.0" }
+strunemix_macros = { path = "../strunemix_macros", version = "0.6.1" }
 thiserror = "1.0.64"
 
 [dev-dependencies]

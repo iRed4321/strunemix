@@ -21,12 +21,12 @@
 //!     age: 42
 //! };
 //! 
-//! // Attributes names are easiliy turned from or into an array
+//! // Strings literals are easiliy turned from or into enum variants of attributes names
 //! assert_eq!(Person::as_name_array(), [PersonAttrName::Pseudo, PersonAttrName::Age]);
 //! assert_eq!(PersonAttrName::Pseudo.get_str(), "pseudo");
 //! assert_eq!(PersonAttrName::Age, "age".field_of::<Person>()?);
 //! 
-//! // Attributes data are turned to an enum
+//! // Attributes data are associated to an enum variant
 //! let pseudo_data = PersonAttrData::Pseudo("Elea".to_string());
 //! let age_data = PersonAttrData::Age(42);
 //! assert_eq!(person.to_data_array(), [pseudo_data, age_data]);
@@ -56,7 +56,7 @@
 //! #   pseudo: String,
 //! #   age: i32,
 //! # }
-//! // Implement the trait for the enum names
+//! // Implement the trait for the enum of names
 //! impl StrunemixParsableData<'_, PersonAttrData> for PersonAttrName {
 //!   fn add_data(&self, data: &str) -> Result<PersonAttrData, StrunemixParseError> {
 //!     match self {

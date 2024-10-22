@@ -48,7 +48,7 @@ assert_eq!(anna, Person { pseudo: "Anna".to_string(), age: 25 });
 If you want to build the attribute data from string values, you must implement the [`StrunemixParsableData`] trait to handle the conversion from the string data to the struct fields.
 
 ```rust
-// Implement the trait for the enum names
+// Implement the trait for the enum of names
 impl StrunemixParsableData<'_, PersonAttrData> for PersonAttrName {
   fn add_data(&self, data: &str) -> Result<PersonAttrData, StrunemixParseError> {
     match self {
